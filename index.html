@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VideoGen AI</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4f7cff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VideoGen AI">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #080b12; color: #e8eaf2; height: 100vh; display: flex; flex-direction: column; }
+header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #1e2a42; flex-shrink: 0; }
+.logo { font-size: 18px; font-weight: 800; color: #4f7cff; }
+.hbtn { background: #0f1420; border: 1px solid #1e2a42; color: #e8eaf2; padding: 8px 14px; border-radius: 8px; font-size: 13px; cursor: pointer; }
+.chat { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.welcome { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #6b7699; padding: 20px; }
+.welcome h2 { font-size: 20px; color: #e8eaf2; margin-bottom: 8px; }
+.welcome p { font-size: 13px; line-height: 1.6; }
+.msg { display: flex; flex-direction: column; max-width: 88%; }
+.msg.user { align-self: flex-end; align-items: flex-end; }
+.msg.bot { align-self: flex-start; }
+.who { font-size: 11px; color: #6b7699; margin-bottom: 4px; }
+.bubble { padding: 11px 14px; border-radius: 12px; font-size: 14px; line-height: 1.6; }
+.msg.user .bubble { background: #4f7cff; color: #fff; border-radius: 12px 12px 3px 12px; }
+.msg.bot .bubble { background: #0f1420; border: 1px solid #1e2a42; border-radius: 12px 12px 12px 3px; }
+.video-card { background: #0f1420; border: 1px solid #1e2a42; border-radius: 12px; overflow: hidden; max-width: 100%; }
+.video-card video { width: 100%; display: block; }
+.vfoot { padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #6b7699; }
+.dl { background: #151c2e; border: 1px solid #1e2a42; color: #e8eaf2; padding: 5px 12px; border-radius: 7px; font-size: 12px; text-decoration: none; }
+.lcard { background: #0f1420; border: 1px solid #1e2a42; border-radius: 12px; padding: 16px 18px; max-width: 300px; }
+.ltop { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.spin { width: 16px; height: 16px; border: 2px solid #1e2a42; border-top-color: #4f7cff; border-radius: 50%; animation: sp .7s linear infinite; flex-shrink: 0; }
+@keyframes sp { to { transform: rotate(360deg); } }
+.pbar { height: 3px; background: #1e2a42; border-radius: 2px; overflow: hidden; }
+.pfill { height: 100%; background: #4f7cff; animation: pg 25s ease-out forwards; }
+@keyframes pg { 0%{width:0} 80%{width:85%} 100%{width:92%} }
+.lstat { margin-top: 8px; font-size: 12px; color: #6b7699; }
+.ecard { background: rgba(255,100,100,.08); border: 1px solid rgba(255,100,100,.3); border-radius: 10px; padding: 12px; font-size: 13px; color: #ff6b6b; max-width: 100%; }
+.iarea { padding: 12px 16px 16px; border-top: 1px solid #1e2a42; flex-shrink: 0; }
+.ibox { display: flex; align-items: flex-end; gap: 8px; background: #0f1420; border: 1px solid #1e2a42; border-radius: 14px; padding: 4px 4px 4px 12px; }
+.ibox:focus-within { border-color: #4f7cff; }
+.ibox textarea { flex: 1; background: transparent; border: none; outline: none; color: #e8eaf2; font-family: inherit; font-size: 14px; line-height: 1.5; resize: none; padding: 9px 0; max-height: 90px; overflow-y: auto; }
+.ibox textarea::placeholder { color: #6b7699; }
+.sbtn { background: #4f7cff; border: none; color: #fff; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; font-size: 18px; flex-shrink: 0; }
+.sbtn:disabled { opacity: .3; }
+#bd { position: fixed; inset: 0; background: rgba(0,0,0,.85); display: flex; align-items: center; justify-content: center; z-index: 999; padding: 16px; }
+#bd.h { display: none; }
+.modal { background: #0f1420; border: 1px solid #1e2a42; border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; }
+.modal h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.modal p { font-size: 13px; color: #6b7699; line-height: 1.6; margin-bottom: 12px; }
+.modal p a { color: #4f7cff; }
+.ibox2 { background: rgba(79,124,255,.07); border: 1px solid rgba(79,124,255,.2); border-radius: 9px; padding: 12px; font-size: 12px; color: #6b7699; line-height: 1.9; margin-bottom: 12px; }
+.ibox2 b { color: #4f7cff; }
+.minput { width: 100%; background: #151c2e; border: 1px solid #1e2a42; color: #e8eaf2; padding: 11px 12px; border-radius: 9px; font-family: inherit; font-size: 14px; margin-bottom: 12px; }
+.minput:focus { outline: none; border-color: #4f7cff; }
+.mbtns { display: flex; gap: 8px; justify-content: flex-end; }
+.bc { background: #151c2e; border: 1px solid #1e2a42; color: #6b7699; padding: 9px 16px; border-radius: 9px; font-size: 13px; cursor: pointer; }
+.bs { background: #4f7cff; border: none; color: #fff; padding: 9px 20px; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.spill { font-size: 12px; }
+.spill.ok { color: #3ecf8e; }
+.spill.bad { color: #ff6b6b; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🎬 VideoGen</div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span id="sp" class="spill bad">⚠ Нет ключа</span>
+    <button class="hbtn" id="apibtn">⚙ Ключ</button>
+  </div>
+</header>
+<div class="chat">
+  <div class="msgs" id="msgs">
+    <div class="welcome" id="wlc">
+      <div style="font-size:44px;margin-bottom:14px">🎬</div>
+      <h2>VideoGen AI</h2>
+      <p>Опишите сцену — нейросеть создаст видео.<br><br>Нажмите <b>⚙ Ключ</b> и введите API ключ от replicate.com</p>
+    </div>
+  </div>
+  <div class="iarea">
+    <div class="ibox">
+      <textarea id="ta" rows="1" placeholder="Опишите сцену для видео..."></textarea>
+      <button class="sbtn" id="sb">&#9658;</button>
+    </div>
+  </div>
+</div>
+
+<div id="bd" class="h">
+  <div class="modal">
+    <h3>🔑 API Ключ</h3>
+    <p>Нужен ключ от <a href="https://replicate.com" target="_blank">replicate.com</a></p>
+    <div class="ibox2">
+      <b>Как получить:</b><br>
+      1. Зайди на replicate.com<br>
+      2. Sign up (регистрация)<br>
+      3. Профиль → API tokens<br>
+      4. Create token → скопируй
+    </div>
+    <input class="minput" type="password" id="ki" placeholder="r8_xxxxxxxx...">
+    <div class="mbtns">
+      <button class="bc" id="cbtn">Отмена</button>
+      <button class="bs" id="svbtn">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var key='',busy=false;
+  var sts=['Запускаю...','Анализирую промпт...','Генерирую кадры...','Рендерю...','Почти готово...'];
+  try{ key=localStorage.getItem('rk')||''; }catch(e){}
+  var bd=document.getElementById('bd');
+  var ki=document.getElementById('ki');
+  var msgs=document.getElementById('msgs');
+  var ta=document.getElementById('ta');
+  var sb=document.getElementById('sb');
+  var sp=document.getElementById('sp');
+  function upd(){ if(key){sp.textContent='✓ Подключён';sp.className='spill ok';}else{sp.textContent='⚠ Нет ключа';sp.className='spill bad';} }
+  function show(){ ki.value=key; bd.classList.remove('h'); setTimeout(function(){ki.focus();},50); }
+  function hide(){ bd.classList.add('h'); }
+  function save(){ var v=ki.value.trim(); if(!v){alert('Введите ключ');return;} key=v; try{localStorage.setItem('rk',v);}catch(e){} upd(); hide(); }
+  document.getElementById('apibtn').addEventListener('click',show);
+  document.getElementById('cbtn').addEventListener('click',hide);
+  document.getElementById('svbtn').addEventListener('click',save);
+  bd.addEventListener('click',function(e){if(e.target===bd)hide();});
+  ki.addEventListener('keydown',function(e){if(e.key==='Enter')save();});
+  upd(); if(!key)show();
+  ta.addEventListener('input',function(){ ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,90)+'px'; });
+  ta.addEventListener('keydown',function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go();} });
+  sb.addEventListener('click',go);
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function rmW(){ var w=document.getElementById('wlc'); if(w)w.remove(); }
+  function addMsg(role,html){ rmW(); var d=document.createElement('div'); d.className='msg '+role; d.innerHTML='<div class="who">'+(role==='user'?'Вы':'AI')+'</div><div class="bubble">'+html+'</div>'; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; return d; }
+  function addEl(el){ rmW(); var d=document.createElement('div'); d.className='msg bot'; d.innerHTML='<div class="who">AI</div>'; d.appendChild(el); msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; return d; }
+  function go(){
+    if(busy)return;
+    var p=ta.value.trim(); if(!p)return;
+    if(!key){show();return;}
+    busy=true; sb.disabled=true; ta.value=''; ta.style.height='auto';
+    addMsg('user',esc(p));
+    var lc=document.createElement('div'); lc.className='lcard';
+    lc.innerHTML='<div class="ltop"><div class="spin"></div><b>Генерирую видео...</b></div><div class="pbar"><div class="pfill"></div></div><div class="lstat" id="ls">Запускаю...</div>';
+    var lm=addEl(lc); var si=0;
+    var t=setInterval(function(){ var el=lc.querySelector('#ls'); if(el){si=(si+1)%sts.length;el.textContent=sts[si];} },4000);
+    fetch('https://api.replicate.com/v1/models/wavespeedai/wan-2.1-t2v-480p/predictions',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json','Prefer':'respond-async'},
+      body:JSON.stringify({input:{prompt:p,num_frames:81,aspect_ratio:'9:16'}})
+    }).then(function(r){ if(!r.ok)return r.json().then(function(e){throw new Error(e.detail||'Ошибка '+r.status);}); return r.json(); })
+    .then(function poll(pred){
+      if(pred.status==='succeeded')return pred;
+      if(pred.status==='failed'||pred.status==='canceled')throw new Error(pred.error||'Не удалось');
+      return new Promise(function(res){setTimeout(res,3000);}).then(function(){
+        return fetch('https://api.replicate.com/v1/predictions/'+pred.id,{headers:{'Authorization':'Bearer '+key}}).then(function(r){return r.json();}).then(poll);
+      });
+    }).then(function(pred){
+      clearInterval(t); lm.remove();
+      var url=Array.isArray(pred.output)?pred.output[0]:pred.output;
+      var vc=document.createElement('div'); vc.className='video-card';
+      vc.innerHTML='<video controls autoplay loop muted playsinline><source src="'+url+'" type="video/mp4"></video><div class="vfoot"><span>✅ Готово</span><a class="dl" href="'+url+'" target="_blank">⬇ Скачать</a></div>';
+      addEl(vc);
+    }).catch(function(err){
+      clearInterval(t); lm.remove();
+      var ec=document.createElement('div'); ec.className='ecard';
+      ec.innerHTML='<b>⚠ Ошибка:</b> '+esc(err.message);
+      addEl(ec);
+    }).finally(function(){ busy=false; sb.disabled=false; });
+  }
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('/sw.js');
+  }
+})();
+</script>
+</body>
+</html>
