@@ -148,7 +148,7 @@ header { display: flex; align-items: center; justify-content: space-between; pad
     var t=setInterval(function(){ var el=lc.querySelector('#ls'); if(el){si=(si+1)%sts.length;el.textContent=sts[si];} },4000);
     fetch('https://api.replicate.com/v1/models/wavespeedai/wan-2.1-t2v-480p/predictions',{
       method:'POST',
-      headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json','Prefer':'respond-async'},
+      headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json','Prefer':'respond-async','Access-Control-Allow-Origin':'*'},
       body:JSON.stringify({input:{prompt:p,num_frames:81,aspect_ratio:'9:16'}})
     }).then(function(r){ if(!r.ok)return r.json().then(function(e){throw new Error(e.detail||'Ошибка '+r.status);}); return r.json(); })
     .then(function poll(pred){
